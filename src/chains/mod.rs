@@ -49,6 +49,7 @@ pub struct ChainProvider {
     pub connection_pool: Arc<RwLock<ConnectionPool>>,
 }
 
+#[derive(Debug)]
 struct ConnectionPool {
     active_connections: u32,
     max_connections: u32,
