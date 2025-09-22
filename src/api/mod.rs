@@ -1,5 +1,6 @@
 use anyhow::Result;
 use std::sync::Arc;
+use ethers::providers::{Provider, Http};
 
 pub mod health;
 pub mod portfolio;
@@ -33,7 +34,11 @@ impl ApiState {
         let dex_manager = Arc::new(DexManager::new(chain_manager.clone()).await?);
         let defi_manager = Arc::new(DefiManager::new(chain_manager.clone(), dex_manager.clone()).await?);
         let analytics = Arc::new(AnalyticsService::new(&config).await?);
-        let security = Arc::new(SecurityManager::new().await?);
+        
+        // Create provider for security manager
+        let chain_provider = chain_manager.get_provider(1).await?; // Ethereum mainnet
+        let provider = chain_provider.provider.clone();
+        let security = Arc::new(SecurityManager::new(provider).await?);
 
         Ok(Self {
             chain_manager,

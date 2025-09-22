@@ -4,6 +4,7 @@ use std::collections::HashSet;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
+#[derive(Debug)]
 pub struct ReentrancyGuard {
     active_transactions: Arc<RwLock<HashSet<H256>>>,
     suspicious_patterns: Vec<Vec<u8>>,

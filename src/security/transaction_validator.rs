@@ -2,6 +2,7 @@ use anyhow::Result;
 use ethers::{prelude::*, types::transaction::eip2718::TypedTransaction};
 use tracing::warn;
 
+#[derive(Debug)]
 pub struct TransactionValidator {
     max_gas_price: U256,
     min_gas_limit: u64,

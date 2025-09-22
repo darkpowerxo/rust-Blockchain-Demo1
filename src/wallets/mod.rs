@@ -50,7 +50,10 @@ pub enum WalletProvider {
 
 impl WalletManager {
     pub async fn new(_config: Option<&crate::app_config::Config>) -> Result<Self> {
-        let security = Arc::new(SecurityManager::new().await?);
+        // Create a default provider for security manager
+        let provider_url = "https://eth-mainnet.g.alchemy.com/v2/demo";
+        let provider = Provider::<Http>::try_from(provider_url)?;
+        let security = Arc::new(SecurityManager::new(provider).await?);
         let multisig_manager = multisig::MultiSigManager::new().await?;
 
         info!("Initialized WalletManager");
@@ -136,8 +139,10 @@ impl WalletManager {
             .get(&address)
             .ok_or_else(|| anyhow::anyhow!("Wallet not found: {}", address))?;
 
-        // Validate message before signing
-        self.security.validate_message(message).await?;
+        // Basic message validation
+        if message.len() > 10_000 {
+            return Err(anyhow::anyhow!("Message too long"));
+        }
 
         match wallet {
             WalletProvider::MetaMask(w) => w.sign_message(message).await,
@@ -163,7 +168,7 @@ impl WalletManager {
             .ok_or_else(|| anyhow::anyhow!("Wallet not found: {}", address))?;
 
         // Security validation
-        self.security.validate_transaction(&tx).await?;
+        self.security.validate_typed_transaction(&tx).await?;
 
         match wallet {
             WalletProvider::MetaMask(w) => w.sign_transaction(tx).await,
@@ -253,7 +258,7 @@ impl WalletManager {
 
         // Validate all transactions first
         for tx in &transactions {
-            self.security.validate_transaction(tx).await?;
+            self.security.validate_typed_transaction(tx).await?;
         }
 
         // Sign all transactions

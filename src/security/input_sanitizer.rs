@@ -1,6 +1,7 @@
 use anyhow::Result;
 use std::collections::HashSet;
 
+#[derive(Debug)]
 pub struct InputSanitizer {
     max_data_size: usize,
     blacklisted_opcodes: HashSet<u8>,
