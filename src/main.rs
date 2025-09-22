@@ -2,7 +2,7 @@ use anyhow::Result;
 use axum::{
     extract::State,
     http::StatusCode,
-    response::Json,
+    response::{Json, Redirect},
     routing::{get, post},
     Router,
 };
@@ -83,7 +83,9 @@ async fn main() -> Result<()> {
     let app = Router::new()
         .route("/", get(root_handler))
         .nest("/api/v1", api::routes())
-        .route("/api-docs/openapi.json", get(|| async { axum::Json(ApiDoc::openapi()) }))
+        .nest("/docs", api::docs::routes())
+        .route("/docs/openapi.json", get(|| async { axum::Json(ApiDoc::openapi()) }))
+        .route("/swagger-ui", get(swagger_ui_redirect))
         .layer(CorsLayer::permissive())
         .with_state(state);
 
@@ -112,10 +114,21 @@ async fn root_handler() -> Json<Value> {
     }))
 }
 
+async fn swagger_ui_redirect() -> Redirect {
+    Redirect::permanent("/docs/swagger")
+}
+
 async fn load_config() -> Result<config::Config> {
+    // For demo purposes, create a minimal configuration
     let settings = config::Config::builder()
+        .set_default("demo_mode", true)?
+        .set_default("server.host", "0.0.0.0")?
+        .set_default("server.port", 3000)?
+        .set_default("ethereum.rpc_url", "https://mainnet.infura.io/v3/demo")?
+        .set_default("polygon.rpc_url", "https://polygon-rpc.com")?
+        .set_default("arbitrum.rpc_url", "https://arb1.arbitrum.io/rpc")?
         .add_source(config::Environment::with_prefix("BLOCKCHAIN_DEMO"))
         .build()?;
-
+    
     Ok(settings)
 }

@@ -117,6 +117,20 @@ impl SushiSwapManager {
         })
     }
 
+    pub async fn new_demo() -> Result<Self> {
+        info!("Creating SushiSwapManager in demo mode");
+        
+        let chain_manager = Arc::new(ChainManager::new_demo().await?);
+        let contracts = HashMap::new(); // Empty contracts for demo
+        
+        Ok(Self {
+            chain_manager,
+            contracts,
+            pairs_cache: Arc::new(tokio::sync::RwLock::new(HashMap::new())),
+            farms_cache: Arc::new(tokio::sync::RwLock::new(HashMap::new())),
+        })
+    }
+
     /// Get pair information
     pub async fn get_pair_info(&self, chain_id: u64, token0: Address, token1: Address) -> Result<PairInfo> {
         info!("Getting pair info for tokens {:?}/{:?} on chain {}", token0, token1, chain_id);

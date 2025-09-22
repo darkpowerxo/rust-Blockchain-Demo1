@@ -141,6 +141,19 @@ impl UniswapV3Manager {
         })
     }
 
+    pub async fn new_demo() -> Result<Self> {
+        info!("Creating UniswapV3Manager in demo mode");
+        
+        let chain_manager = Arc::new(ChainManager::new_demo().await?);
+        let contracts = HashMap::new(); // Empty contracts for demo
+        
+        Ok(Self {
+            chain_manager,
+            contracts,
+            pools_cache: Arc::new(tokio::sync::RwLock::new(HashMap::new())),
+        })
+    }
+
     /// Get pool information for a trading pair
     pub async fn get_pool_info(&self, chain_id: u64, token0: Address, token1: Address, fee: u32) -> Result<PoolInfo> {
         info!("Getting pool info for tokens {:?}/{:?} on chain {}", token0, token1, chain_id);

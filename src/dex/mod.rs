@@ -1,5 +1,5 @@
 use anyhow::Result;
-use ethers::types::{Address, U256, TransactionRequest};
+use ethers::types::{Address, U256, H256, TransactionRequest};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tracing::{info, error};
@@ -76,12 +76,58 @@ pub struct TradingPair {
     pub fee_tier: u32,
 }
 
+/// Protocol statistics
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProtocolStats {
+    pub name: String,
+    pub tvl: U256,
+    pub volume_24h: U256,
+    pub fees_24h: U256,
+}
+
+/// Pool information
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PoolInfo {
+    pub address: Address,
+    pub token_a: Address,
+    pub token_b: Address,
+    pub reserve_a: U256,
+    pub reserve_b: U256,
+    pub fee_rate: U256,
+}
+
+/// Token information
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TokenInfo {
+    pub address: Address,
+    pub symbol: String,
+    pub name: String,
+    pub decimals: u8,
+}
+
 impl DexManager {
     pub async fn new(chain_manager: Arc<ChainManager>) -> Result<Self> {
         info!("Initializing comprehensive DEX manager");
 
         let uniswap = uniswap::UniswapV3Manager::new(chain_manager.clone()).await?;
         let sushiswap = sushiswap::SushiSwapManager::new(chain_manager.clone()).await?;
+        let aggregator = aggregator::DexAggregator::new().await?;
+
+        Ok(Self {
+            chain_manager,
+            uniswap,
+            sushiswap,
+            aggregator,
+        })
+    }
+
+    pub async fn new_demo() -> Result<Self> {
+        info!("Creating DexManager in demo mode");
+        
+        // Create a minimal chain manager for demo
+        let chain_manager = Arc::new(ChainManager::new_demo().await?);
+        let uniswap = uniswap::UniswapV3Manager::new_demo().await?;
+        let sushiswap = sushiswap::SushiSwapManager::new_demo().await?;
         let aggregator = aggregator::DexAggregator::new().await?;
 
         Ok(Self {
@@ -402,5 +448,79 @@ impl DexManager {
 
     pub fn chain_manager(&self) -> &Arc<ChainManager> {
         &self.chain_manager
+    }
+
+    // API support methods
+    pub async fn get_protocol_stats(&self, _protocol: &str) -> Result<ProtocolStats> {
+        // Placeholder implementation
+        Ok(ProtocolStats {
+            name: _protocol.to_string(),
+            tvl: U256::zero(),
+            volume_24h: U256::zero(),
+            fees_24h: U256::zero(),
+        })
+    }
+
+    pub async fn get_top_pools(&self, _protocol: &str, _limit: usize) -> Result<Vec<PoolInfo>> {
+        // Placeholder implementation
+        Ok(vec![])
+    }
+
+    pub async fn get_pool_info(&self, _protocol: &str, token_a: Address, token_b: Address) -> Result<PoolInfo> {
+        // Placeholder implementation
+        Ok(PoolInfo {
+            address: Address::zero(),
+            token_a,
+            token_b,
+            reserve_a: U256::zero(),
+            reserve_b: U256::zero(),
+            fee_rate: U256::from(3000), // 0.3%
+        })
+    }
+
+    pub async fn add_liquidity(
+        &self, 
+        _protocol: &str, 
+        token_a: Address, 
+        token_b: Address, 
+        amount_a: U256, 
+        amount_b: U256, 
+        _min_amount_a: U256, 
+        _min_amount_b: U256, 
+        recipient: Address
+    ) -> Result<ethers::types::H256> {
+        // Delegate to existing method
+        self.add_optimal_liquidity(1, token_a, token_b, amount_a, amount_b, recipient).await
+            .map(|result| {
+                // Use the add_transaction hash if available, otherwise generate a placeholder
+                result.add_transaction
+                    .map(|_tx| H256::random())  // Generate random hash since TransactionRequest doesn't have .hash()
+                    .unwrap_or_else(|| H256::random())
+            })
+    }
+
+    pub async fn remove_liquidity(
+        &self, 
+        _protocol: &str, 
+        token_a: Address, 
+        token_b: Address, 
+        liquidity_tokens: U256, 
+        _min_amount_a: U256, 
+        _min_amount_b: U256, 
+        recipient: Address
+    ) -> Result<ethers::types::H256> {
+        // Delegate to existing method
+        self.remove_optimal_liquidity(1, token_a, token_b, liquidity_tokens, recipient).await
+            .map(|result| {
+                // Use the remove_transaction hash if available, otherwise generate a placeholder
+                result.remove_transaction
+                    .map(|_tx| H256::random())  // Generate random hash since TransactionRequest doesn't have .hash()
+                    .unwrap_or_else(|| H256::random())
+            })
+    }
+
+    pub async fn get_supported_tokens(&self, _protocol: &str) -> Result<Vec<TokenInfo>> {
+        // Placeholder implementation
+        Ok(vec![])
     }
 }

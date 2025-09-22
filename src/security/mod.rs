@@ -35,7 +35,7 @@ pub use risk_engine::{RiskEngine, RiskAssessment};
 pub use emergency_response::{EmergencyResponse, EmergencyAlert, EmergencyStats};
 pub use audit_trail::{AuditTrail, AuditEntry, AuditStats, ComplianceReport};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub enum SecurityStatus {
     Safe,
     Caution,
@@ -51,7 +51,7 @@ pub enum ThreatLevel {
     Critical,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum ThreatType {
     MEV(MevThreat),
     Oracle(String),
@@ -61,7 +61,7 @@ pub enum ThreatType {
     Unknown(String),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct SecurityThreat {
     pub threat_id: String,
     pub threat_type: ThreatType,
@@ -135,6 +135,34 @@ impl AdvancedSecurityManager {
         let config = Arc::new(RwLock::new(SecurityConfig::default()));
         
         // Initialize all security modules
+        let mev_protection = Arc::new(MevProtection::new(provider.clone()));
+        let oracle_security = Arc::new(OracleSecurity::new(provider.clone()));
+        let defi_security = Arc::new(DeFiSecurity::new(provider.clone()));
+        let risk_engine = Arc::new(RiskEngine::new(provider.clone()));
+        let emergency_response = Arc::new(EmergencyResponse::new(provider.clone()));
+        let audit_trail = Arc::new(AuditTrail::new(provider.clone()));
+        
+        Ok(Self {
+            provider,
+            config,
+            mev_protection,
+            oracle_security,
+            defi_security,
+            risk_engine,
+            emergency_response,
+            audit_trail,
+            threat_level: Arc::new(RwLock::new(ThreatLevel::Low)),
+            security_metrics: Arc::new(RwLock::new(SecurityMetrics::default())),
+        })
+    }
+
+    pub async fn new_demo() -> Result<Self> {
+        info!("Creating AdvancedSecurityManager in demo mode");
+        
+        // Create a mock HTTP provider for demo
+        let provider = Arc::new(Provider::<Http>::try_from("http://localhost:8545").unwrap());
+        
+        let config = Arc::new(RwLock::new(SecurityConfig::default()));
         let mev_protection = Arc::new(MevProtection::new(provider.clone()));
         let oracle_security = Arc::new(OracleSecurity::new(provider.clone()));
         let defi_security = Arc::new(DeFiSecurity::new(provider.clone()));
@@ -464,7 +492,7 @@ impl AdvancedSecurityManager {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct SecurityAnalysisResult {
     pub security_status: SecurityStatus,
     pub risk_score: f64,
@@ -562,6 +590,17 @@ impl SecurityManager {
     pub async fn new(provider: Provider<Http>) -> Result<Self> {
         let advanced = Arc::new(AdvancedSecurityManager::new(Arc::new(provider)).await?);
         let basic = BasicSecurity::new().await?;
+        
+        Ok(Self {
+            advanced,
+            basic,
+        })
+    }
+
+    pub async fn new_demo() -> Result<Self> {
+        info!("Creating SecurityManager in demo mode");
+        let basic = BasicSecurity::new().await?;
+        let advanced = Arc::new(AdvancedSecurityManager::new_demo().await?);
         
         Ok(Self {
             advanced,

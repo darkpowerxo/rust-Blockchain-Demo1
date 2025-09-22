@@ -124,6 +124,17 @@ impl ChainManager {
         })
     }
 
+    pub async fn new_demo() -> Result<Self> {
+        info!("Creating ChainManager in demo mode");
+        let chains = HashMap::new(); // Empty chains for demo
+        let gas_optimizer = gas_optimizer::GasOptimizer::new();
+
+        Ok(Self {
+            chains,
+            gas_optimizer,
+        })
+    }
+
     pub async fn get_provider(&self, chain_id: u64) -> Result<Arc<ChainProvider>> {
         self.chains
             .get(&chain_id)

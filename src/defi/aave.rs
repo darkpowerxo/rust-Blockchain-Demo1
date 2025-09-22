@@ -774,5 +774,57 @@ impl AaveManager {
         let abi: Abi = serde_json::from_str(abi_json)?;
         Ok(abi)
     }
+
+    // API Support Methods
+    
+    /// Supply asset to Aave (API-friendly wrapper)
+    pub async fn supply_asset(
+        &self,
+        chain_id: u64,
+        asset: Address,
+        amount: U256,
+        user: Address,
+    ) -> Result<TransactionRequest> {
+        // Use the existing supply method with default referral code
+        self.supply(chain_id, asset, amount, user, 0).await
+    }
+
+    /// Withdraw asset from Aave (API-friendly wrapper)
+    pub async fn withdraw_asset(
+        &self,
+        chain_id: u64,
+        asset: Address,
+        amount: U256,
+        user: Address,
+    ) -> Result<TransactionRequest> {
+        // Use the existing withdraw method
+        self.withdraw(chain_id, asset, amount, user).await
+    }
+
+    /// Borrow asset from Aave (API-friendly wrapper)
+    pub async fn borrow_asset(
+        &self,
+        chain_id: u64,
+        asset: Address,
+        amount: U256,
+        user: Address,
+    ) -> Result<TransactionRequest> {
+        // Use the existing borrow method with default parameters
+        // interest_rate_mode: 2 = variable rate, referral_code: 0
+        self.borrow(chain_id, asset, amount, 2, 0, user).await
+    }
+
+    /// Repay asset to Aave (API-friendly wrapper)
+    pub async fn repay_asset(
+        &self,
+        chain_id: u64,
+        asset: Address,
+        amount: U256,
+        user: Address,
+    ) -> Result<TransactionRequest> {
+        // Use the existing repay method with default parameters
+        // interest_rate_mode: 2 = variable rate
+        self.repay(chain_id, asset, amount, 2, user).await
+    }
 }
 

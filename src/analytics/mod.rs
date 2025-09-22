@@ -13,4 +13,8 @@ impl AnalyticsService {
     pub async fn new(_config: &config::Config) -> Result<Self> {
         Ok(Self {})
     }
+
+    pub async fn new_demo() -> Result<Self> {
+        Ok(Self {})
+    }
 }
