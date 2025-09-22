@@ -3,7 +3,7 @@ use anyhow::{Result, anyhow};
 use ethers::{
     prelude::*,
     abi::{Abi, Token, Function},
-    types::{Address, U256, H256, Bytes, TransactionRequest},
+    types::{Address, U256, H256, Bytes},
     providers::{Provider, Http},
 };
 use serde::{Deserialize, Serialize};
@@ -73,7 +73,7 @@ impl ERC20Contract {
         Ok(contract)
     }
 
-    pub async fn load_token_info(&mut self) -> Result<()> {
+    async fn load_token_info(&mut self) -> Result<()> {
         info!("Loading token information for contract {:?}", self.address);
 
         let name = self.name().await.unwrap_or("Unknown".to_string());
@@ -92,10 +92,6 @@ impl ERC20Contract {
 
         info!("Token info loaded: {:?}", self.token_info);
         Ok(())
-    }
-
-    pub fn get_token_info(&self) -> Option<&TokenInfo> {
-        self.token_info.as_ref()
     }
 
     fn get_erc20_abi() -> Abi {
@@ -171,6 +167,10 @@ impl ERC20Contract {
         ]"#).unwrap_or_default()
     }
 
+    pub fn get_token_info(&self) -> Option<&TokenInfo> {
+        self.token_info.as_ref()
+    }
+
     pub fn get_address(&self) -> Address {
         self.address
     }
@@ -224,7 +224,7 @@ impl ERC20Contract {
         &self,
         to: Address,
         amount: U256,
-    ) -> Result<TransactionRequest> {
+    ) -> Result<TypedTransaction> {
         info!("Building transfer transaction to {:?} for {} tokens", to, amount);
 
         // In a real implementation:
@@ -240,10 +240,13 @@ impl ERC20Contract {
             Token::Uint(amount),
         ])?;
 
-        let tx = TransactionRequest::new()
-            .to(self.address)
-            .data(data)
-            .value(U256::zero());
+        let mut tx = TypedTransaction::default();
+        if let TypedTransaction::Eip1559(ref mut eip1559_tx) = tx {
+            eip1559_tx.to = Some(self.address.into());
+            eip1559_tx.data = Some(data.into());
+            eip1559_tx.value = Some(U256::zero());
+            eip1559_tx.chain_id = Some(self.chain_id.into());
+        }
 
         Ok(tx)
     }
@@ -252,7 +255,7 @@ impl ERC20Contract {
         &self,
         spender: Address,
         amount: U256,
-    ) -> Result<TransactionRequest> {
+    ) -> Result<TypedTransaction> {
         info!("Building approve transaction for {:?} to spend {} tokens", spender, amount);
 
         let function = self.abi.function("approve")
@@ -263,10 +266,13 @@ impl ERC20Contract {
             Token::Uint(amount),
         ])?;
 
-        let tx = TransactionRequest::new()
-            .to(self.address)
-            .data(data)
-            .value(U256::zero());
+        let mut tx = TypedTransaction::default();
+        if let TypedTransaction::Eip1559(ref mut eip1559_tx) = tx {
+            eip1559_tx.to = Some(self.address.into());
+            eip1559_tx.data = Some(data.into());
+            eip1559_tx.value = Some(U256::zero());
+            eip1559_tx.chain_id = Some(self.chain_id.into());
+        }
 
         Ok(tx)
     }
