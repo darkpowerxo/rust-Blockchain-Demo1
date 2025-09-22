@@ -81,14 +81,14 @@ pub struct DexStatsResponse {
 pub fn routes() -> Router<Arc<ApiState>> {
     Router::new()
         .route("/", get(list_dex_protocols))
-        .route("/:dex/stats", get(get_dex_stats))
-        .route("/:dex/pools", get(list_pools))
-        .route("/:dex/pool", get(get_pool_info))
+        .route("/{dex}/stats", get(get_dex_stats))
+        .route("/{dex}/pools", get(list_pools))
+        .route("/{dex}/pool", get(get_pool_info))
         .route("/quote", get(get_swap_quote))
         .route("/swap", post(execute_swap))
-        .route("/:dex/liquidity/add", post(add_liquidity))
-        .route("/:dex/liquidity/remove", post(remove_liquidity))
-        .route("/:dex/tokens", get(list_supported_tokens))
+        .route("/{dex}/liquidity/add", post(add_liquidity))
+        .route("/{dex}/liquidity/remove", post(remove_liquidity))
+        .route("/{dex}/tokens", get(list_supported_tokens))
 }
 
 #[utoipa::path(
@@ -284,16 +284,16 @@ async fn get_swap_quote(State(state): State<Arc<ApiState>>) -> Json<SwapQuote> {
     let quote = SwapQuote {
         from_token: "0xA0b86a33E6441c8e8C3aB8C37C0b14E1FEd0E8C6".to_string(),
         to_token: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2".to_string(),
-        from_amount: rust_decimal::Decimal::from(1),
-        to_amount: rust_decimal::Decimal::new(1800, 0),
-        price_impact: rust_decimal::Decimal::new(5, 3), // 0.5%
+        from_amount: 1.0,
+        to_amount: 1800.0,
+        price_impact: 0.005, // 0.5%
         gas_estimate: 150000,
         dex: "Uniswap V3".to_string(),
         route: vec![
             "0xA0b86a33E6441c8e8C3aB8C37C0b14E1FEd0E8C6".to_string(),
             "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2".to_string(),
         ],
-        slippage_tolerance: rust_decimal::Decimal::new(1, 2), // 1%
+        slippage_tolerance: 0.01, // 1%
     };
 
     Json(quote)

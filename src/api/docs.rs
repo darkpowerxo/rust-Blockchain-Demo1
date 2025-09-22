@@ -167,7 +167,6 @@ async fn get_openapi_spec(
     State(_state): State<Arc<ApiState>>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     let spec = json!({
-        "openapi": "3.0.0",
         "info": {
             "title": "Blockchain Demo API",
             "version": "1.0.0",

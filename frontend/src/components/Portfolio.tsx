@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { TrendingUp, TrendingDown, RefreshCw, Eye, EyeOff } from 'lucide-react'
-import { useUserPortfolio, useYieldOpportunities } from '../hooks/useApi'
-import { utils } from '../services/api'
 
 interface TokenBalance {
   symbol: string

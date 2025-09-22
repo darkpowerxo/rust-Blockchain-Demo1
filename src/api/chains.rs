@@ -74,12 +74,12 @@ pub fn routes() -> Router<Arc<ApiState>> {
     Router::new()
         .route("/", get(list_supported_chains))
         .route("/switch", post(switch_chain))
-        .route("/:chain_id", get(get_chain_info))
-        .route("/:chain_id/gas", get(get_gas_price))
-        .route("/:chain_id/stats", get(get_network_stats))
-        .route("/:chain_id/block", get(get_block))
-        .route("/:chain_id/transaction/:tx_hash", get(get_transaction))
-        .route("/:chain_id/balance/:address", get(get_balance))
+        .route("/{chain_id}", get(get_chain_info))
+        .route("/{chain_id}/gas", get(get_gas_price))
+        .route("/{chain_id}/stats", get(get_network_stats))
+        .route("/{chain_id}/block", get(get_block))
+        .route("/{chain_id}/transaction/{tx_hash}", get(get_transaction))
+        .route("/{chain_id}/balance/{address}", get(get_balance))
 }
 
 /// List all supported chains

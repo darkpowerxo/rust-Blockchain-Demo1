@@ -19,6 +19,7 @@ use crate::wallets::WalletManager;
 use crate::defi::DefiManager;
 use crate::analytics::AnalyticsService;
 use crate::security::SecurityManager;
+// use crate::websocket::WebSocketState; // Temporarily disabled
 
 /// Central application state containing all managers and services
 #[derive(Clone)]
@@ -29,6 +30,7 @@ pub struct ApiState {
     pub defi_manager: Arc<DefiManager>,
     pub analytics: Arc<AnalyticsService>,
     pub security: Arc<SecurityManager>,
+    // pub websocket: Arc<WebSocketState>, // Temporarily disabled
 }
 
 impl ApiState {
@@ -38,6 +40,7 @@ impl ApiState {
         // Initialize all managers with error tolerance for demo mode
         let wallet_manager = Arc::new(WalletManager::new(None).await?);
         let analytics = Arc::new(AnalyticsService::new(&config).await?);
+        // let websocket = Arc::new(WebSocketState::new()); // Temporarily disabled
         
         // Create demo/empty managers to avoid RPC connection issues
         let chain_manager = Arc::new(ChainManager::new_demo().await?);
@@ -52,6 +55,7 @@ impl ApiState {
             defi_manager,
             analytics,
             security,
+            // websocket, // Temporarily disabled
         })
     }
 }

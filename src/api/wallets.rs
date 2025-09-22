@@ -75,10 +75,10 @@ pub fn routes() -> Router<Arc<ApiState>> {
         .route("/create/local", post(create_local_wallet))
         .route("/create/multisig", post(create_multisig_wallet))
         .route("/list", get(list_wallets))
-        .route("/:address", get(get_wallet_info))
-        .route("/:address", delete(disconnect_wallet))
-        .route("/:address/sign/message", post(sign_message))
-        .route("/:address/sign/transaction", post(sign_transaction))
+        .route("/{address}", get(get_wallet_info))
+        .route("/{address}", delete(disconnect_wallet))
+        .route("/{address}/sign/message", post(sign_message))
+        .route("/{address}/sign/transaction", post(sign_transaction))
 }
 
 /// Connect MetaMask wallet

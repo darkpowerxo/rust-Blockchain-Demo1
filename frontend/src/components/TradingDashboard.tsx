@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { ArrowUpDown, Settings, RefreshCw, TrendingUp, AlertCircle } from 'lucide-react'
 import { useTradingQuote, useSupportedTokens } from '../hooks/useApi'
-import { tradingApi, utils } from '../services/api'
-import type { TradingQuote } from '../services/api'
 
 interface Token {
   symbol: string
@@ -14,8 +12,8 @@ interface Token {
 }
 
 const TradingDashboard: React.FC = () => {
-  const { data: supportedTokens, loading: tokensLoading } = useSupportedTokens()
-  const { data: quote, loading: quoteLoading, getQuote } = useTradingQuote()
+  const { data: supportedTokens } = useSupportedTokens()
+  const { data: quote, getQuote } = useTradingQuote()
   
   const [fromToken, setFromToken] = useState<Token>({
     symbol: 'ETH',
@@ -101,7 +99,7 @@ const TradingDashboard: React.FC = () => {
       // Simulate swap execution
       await new Promise(resolve => setTimeout(resolve, 2000))
       alert('Swap executed successfully! (This is a demo)')
-    } catch (error) {
+    } catch {
       setError('Failed to execute swap')
     } finally {
       setIsLoading(false)

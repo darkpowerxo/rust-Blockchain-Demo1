@@ -63,7 +63,7 @@ pub fn routes() -> Router<Arc<ApiState>> {
         .route("/metrics", get(get_security_metrics))
         .route("/emergency/alert", post(trigger_emergency_alert))
         .route("/emergency/alerts", get(get_active_alerts))
-        .route("/threats/:address", get(get_address_threats))
+        .route("/threats/{address}", get(get_address_threats))
 }
 
 /// Get current security status

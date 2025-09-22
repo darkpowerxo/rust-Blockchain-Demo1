@@ -12,7 +12,7 @@ use tokio::net::TcpListener;
 use tower_http::cors::CorsLayer;
 use tracing::{info, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-use utoipa::OpenApi;
+use utoipa::{OpenApi, openapi::OpenApiVersion};
 use utoipa_swagger_ui::SwaggerUi;
 
 mod api;
@@ -24,6 +24,7 @@ mod defi;
 mod dex;
 mod security;
 mod wallets;
+// mod websocket; // Temporarily disabled due to compilation issues
 
 use crate::api::ApiState;
 
@@ -56,6 +57,9 @@ use crate::api::ApiState;
             name = "MIT",
             url = "https://opensource.org/licenses/MIT"
         )
+    ),
+    servers(
+        (url = "http://localhost:3000", description = "Local server")
     )
 )]
 struct ApiDoc;
@@ -79,12 +83,17 @@ async fn main() -> Result<()> {
     // Initialize application state
     let state = Arc::new(ApiState::new(config).await?);
 
+    // Start real-time updates
+    // WebSocket support temporarily disabled
+    // websocket::start_real_time_updates(Arc::clone(&state.websocket)).await;
+
     // Build the application router
     let app = Router::new()
         .route("/", get(root_handler))
+        // .route("/ws", get(websocket::websocket_handler)) // WebSocket disabled
         .nest("/api/v1", api::routes())
         .nest("/docs", api::docs::routes())
-        .route("/docs/openapi.json", get(|| async { axum::Json(ApiDoc::openapi()) }))
+        .route("/docs/openapi.json", get(openapi_spec_handler))
         .route("/swagger-ui", get(swagger_ui_redirect))
         .layer(CorsLayer::permissive())
         .with_state(state);
@@ -97,6 +106,18 @@ async fn main() -> Result<()> {
     axum::serve(listener, app).await?;
 
     Ok(())
+}
+
+async fn openapi_spec_handler() -> Json<Value> {
+    let spec = ApiDoc::openapi();
+    let mut spec_json = serde_json::to_value(spec).unwrap();
+    
+    // Explicitly set OpenAPI version to 3.0.3 for better Swagger UI compatibility
+    if let Some(obj) = spec_json.as_object_mut() {
+        obj.insert("openapi".to_string(), serde_json::Value::String("3.0.3".to_string()));
+    }
+    
+    Json(spec_json)
 }
 
 async fn root_handler() -> Json<Value> {

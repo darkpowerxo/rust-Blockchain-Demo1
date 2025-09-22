@@ -14,13 +14,13 @@ use crate::api::ApiState;
 pub fn routes() -> Router<Arc<ApiState>> {
     Router::new()
         .route("/protocols", get(list_defi_protocols))
-        .route("/protocols/:protocol/stats", get(get_protocol_stats))
-        .route("/protocols/:protocol/supply", post(supply_asset))
-        .route("/protocols/:protocol/withdraw", post(withdraw_asset))
-        .route("/protocols/:protocol/borrow", post(borrow_asset))
-        .route("/protocols/:protocol/repay", post(repay_asset))
+        .route("/protocols/{protocol}/stats", get(get_protocol_stats))
+        .route("/protocols/{protocol}/supply", post(supply_asset))
+        .route("/protocols/{protocol}/withdraw", post(withdraw_asset))
+        .route("/protocols/{protocol}/borrow", post(borrow_asset))
+        .route("/protocols/{protocol}/repay", post(repay_asset))
         .route("/opportunities", get(get_yield_opportunities))
-        .route("/portfolio/:user", get(get_user_portfolio))
+        .route("/portfolio/{user}", get(get_user_portfolio))
 }
 
 #[derive(Debug, Serialize, Deserialize)]

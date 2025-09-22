@@ -9,7 +9,7 @@ use crate::api::ApiState;
 pub struct HealthResponse {
     pub status: String,
     pub version: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: String,
     pub services: ServiceStatus,
 }
 
@@ -48,7 +48,7 @@ pub async fn health_check(State(state): State<Arc<ApiState>>) -> Json<HealthResp
     let response = HealthResponse {
         status: "healthy".to_string(),
         version: env!("CARGO_PKG_VERSION").to_string(),
-        timestamp: chrono::Utc::now(),
+        timestamp: chrono::Utc::now().to_rfc3339(),
         services: ServiceStatus {
             chains,
             database: true, // TODO: Implement actual DB health check

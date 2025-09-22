@@ -16,50 +16,52 @@ tokio = { version = "1.0", features = ["full"] }
 futures = "0.3"
 async-trait = "0.1"
 
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9.33"
+
+# UUID generation and random numbers
+uuid = { version = "1.0", features = ["v4", "serde"] }
+rand = "0.9.2"
+
+# Date and time
+chrono = { version = "0.4", features = ["serde"] }
+
 # Web3 and blockchain libraries
 ethers = "2.0"
 web3 = "0.19"
-secp256k1 = { version = "0.27", features = ["recovery"] }
+secp256k1 = { version = "0.31.1", features = ["recovery"] }
 tiny-keccak = { version = "2.0", features = ["keccak"] }
 
 # HTTP client and web framework
-reqwest = { version = "0.11", features = ["json"] }
-axum = { version = "0.7", features = ["ws"] }
-tower = "0.4"
-tower-http = { version = "0.5", features = ["cors", "fs"] }
+reqwest = { version = "0.12.23", features = ["json"] }
+axum = { version = "0.8.4", features = ["ws"] }
+tower = "0.5.2"
+tower-http = { version = "0.6.6", features = ["cors", "fs"] }
 
 # WebSocket support
-tokio-tungstenite = { version = "0.20", features = ["native-tls"] }
+tokio-tungstenite = { version = "0.27", features = ["native-tls"] }
 
 # Database and ORM
-diesel = { version = "2.1", features = ["postgres", "chrono", "uuid"] }
-diesel-async = { version = "0.4", features = ["postgres", "bb8"] }
-
-# Serialization and deserialization
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-serde_yaml = "0.9"
+diesel = { version = "2.2.12", features = ["postgres", "chrono", "uuid"] }
+diesel-async = { version = "0.6.1", features = ["postgres", "bb8"] }
 
 # Error handling and logging
 anyhow = "1.0"
-thiserror = "1.0"
+thiserror = "2.0.16"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # Cryptography and security
 ring = "0.17"
-rand = "0.8"
 aes-gcm = "0.10"
 pbkdf2 = "0.12"
 sha2 = "0.10"
 hmac = "0.12"
 
-# Time and UUID utilities
-chrono = { version = "0.4", features = ["serde"] }
-uuid = { version = "1.0", features = ["v4", "serde"] }
-
 # Configuration and environment
-config = "0.13"
+config = "0.15.16"
 dotenv = "0.15"
 
 # Numerical computations
@@ -71,15 +73,15 @@ rust_decimal = { version = "1.0", features = ["serde"] }
 url = "2.4"
 
 # OpenAPI documentation
-utoipa = { version = "4.2", features = ["axum_extras"] }
-utoipa-swagger-ui = { version = "6.0", features = ["axum"] }
+utoipa = { version = "5.4", features = ["axum_extras"] }
+utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }
 
 # Testing utilities (dev dependencies)
 [dev-dependencies]
 tokio-test = "0.4"
-mockall = "0.11"
+mockall = "0.13.1"
 tempfile = "3.8"
-criterion = "0.5"
+criterion = "0.7.0"
 
 # Build configuration
 [profile.release]

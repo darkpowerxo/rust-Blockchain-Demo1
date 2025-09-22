@@ -7,7 +7,7 @@ use crate::api::{models::Portfolio, ApiState};
 pub fn routes() -> Router<Arc<ApiState>> {
     Router::new()
         .route("/", get(get_portfolio))
-        .route("/:address", get(get_portfolio_by_address))
+        .route("/{address}", get(get_portfolio_by_address))
 }
 
 #[utoipa::path(
@@ -21,12 +21,12 @@ pub fn routes() -> Router<Arc<ApiState>> {
 pub async fn get_portfolio(State(_state): State<Arc<ApiState>>) -> Json<Portfolio> {
     // Mock implementation
     let portfolio = Portfolio {
-        id: uuid::Uuid::new_v4(),
+        id: uuid::Uuid::new_v4().to_string(),
         address: "0x1234567890123456789012345678901234567890".to_string(),
-        total_value_usd: rust_decimal::Decimal::from(10000),
+        total_value_usd: 10000.0,
         assets: vec![],
         defi_positions: vec![],
-        last_updated: chrono::Utc::now(),
+        last_updated: chrono::Utc::now().to_rfc3339(),
     };
 
     Json(portfolio)
