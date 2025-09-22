@@ -1,0 +1,97 @@
+[package]
+name = "blockchain-demo"
+version = "0.1.0"
+edition = "2021"
+authors = ["Blockchain Developer <dev@example.com>"]
+description = "A comprehensive Rust blockchain demo showcasing professional-level crypto development"
+license = "MIT"
+repository = "https://github.com/example/blockchain-demo"
+documentation = "https://docs.rs/blockchain-demo"
+keywords = ["blockchain", "ethereum", "defi", "web3", "crypto"]
+categories = ["web-programming", "cryptography"]
+
+[dependencies]
+# Core async runtime
+tokio = { version = "1.0", features = ["full"] }
+futures = "0.3"
+async-trait = "0.1"
+
+# Web3 and blockchain libraries
+ethers = "2.0"
+web3 = "0.19"
+secp256k1 = { version = "0.27", features = ["recovery"] }
+tiny-keccak = { version = "2.0", features = ["keccak"] }
+
+# HTTP client and web framework
+reqwest = { version = "0.11", features = ["json"] }
+axum = { version = "0.7", features = ["ws"] }
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "fs"] }
+
+# WebSocket support
+tokio-tungstenite = { version = "0.20", features = ["native-tls"] }
+
+# Database and ORM
+diesel = { version = "2.1", features = ["postgres", "chrono", "uuid"] }
+diesel-async = { version = "0.4", features = ["postgres", "bb8"] }
+
+# Serialization and deserialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+
+# Error handling and logging
+anyhow = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Cryptography and security
+ring = "0.17"
+rand = "0.8"
+aes-gcm = "0.10"
+pbkdf2 = "0.12"
+sha2 = "0.10"
+hmac = "0.12"
+
+# Time and UUID utilities
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
+
+# Configuration and environment
+config = "0.13"
+dotenv = "0.15"
+
+# Numerical computations
+num-bigint = "0.4"
+num-traits = "0.2"
+rust_decimal = { version = "1.0", features = ["serde"] }
+
+# URL handling
+url = "2.4"
+
+# OpenAPI documentation
+utoipa = { version = "4.0", features = ["axum_extras"] }
+utoipa-swagger-ui = { version = "4.0", features = ["axum"] }
+
+# Testing utilities (dev dependencies)
+[dev-dependencies]
+tokio-test = "0.4"
+mockall = "0.11"
+tempfile = "3.8"
+criterion = "0.5"
+
+# Build configuration
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[profile.dev]
+debug = true
+split-debuginfo = "unpacked"
+
+[[bin]]
+name = "blockchain-demo"
+path = "src/main.rs"
