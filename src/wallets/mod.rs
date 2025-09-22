@@ -49,7 +49,7 @@ pub enum WalletProvider {
 }
 
 impl WalletManager {
-    pub async fn new(config: &config::Config) -> Result<Self> {
+    pub async fn new(_config: Option<&crate::app_config::Config>) -> Result<Self> {
         let security = Arc::new(SecurityManager::new().await?);
         let multisig_manager = multisig::MultiSigManager::new().await?;
 
@@ -84,14 +84,14 @@ impl WalletManager {
         Ok(address)
     }
 
-    pub async fn connect_ledger(&self, derivation_path: &str) -> Result<Address> {
-        let wallet = ledger::LedgerWallet::connect(derivation_path).await?;
-        let address = wallet.get_address();
+    pub async fn connect_ledger(&self, _derivation_path: &str) -> Result<Address> {
+        let wallet = ledger::LedgerWallet::connect().await?;
+        let address = wallet.get_address().unwrap_or_default();
         
         let mut wallets = self.wallets.write().await;
         wallets.insert(address, WalletProvider::Ledger(wallet));
         
-        info!("Connected Ledger wallet: {}", address);
+        info!("Connected Ledger wallet: {:?}", address);
         Ok(address)
     }
 
@@ -219,9 +219,9 @@ impl WalletManager {
         
         if let Some(wallet) = wallets.remove(&address) {
             match wallet {
-                WalletProvider::MetaMask(w) => w.disconnect().await?,
-                WalletProvider::WalletConnect(w) => w.disconnect().await?,
-                WalletProvider::Ledger(w) => w.disconnect().await?,
+                WalletProvider::MetaMask(mut w) => w.disconnect().await?,
+                WalletProvider::WalletConnect(mut w) => w.disconnect().await?,
+                WalletProvider::Ledger(mut w) => w.disconnect().await?,
                 WalletProvider::Local(_) => {} // Nothing to disconnect
                 WalletProvider::MultiSig(_) => {} // Nothing to disconnect
             }

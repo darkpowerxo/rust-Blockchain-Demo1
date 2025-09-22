@@ -17,6 +17,7 @@ use utoipa_swagger_ui::SwaggerUi;
 
 mod api;
 mod analytics;
+mod app_config;
 mod chains;
 mod contracts;
 mod defi;
